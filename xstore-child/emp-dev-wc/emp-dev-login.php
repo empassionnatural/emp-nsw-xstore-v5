@@ -5,8 +5,13 @@
  * Date: 30/07/2018
  * Time: 9:11 AM
  */
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 
 function product_form($atts) {
+
+    $bloglink = get_bloginfo('url');
+
     $html = '<div id="da-thumbs" class="da-thumbs">';
 
     $html .= '<div class="box">';
@@ -26,7 +31,7 @@ function product_form($atts) {
     $html .= '<div class="overlay"><span></span></div>';
     $html .= '<div class="bg-color-txt-pic">
                 <img src="/wp-content/uploads/2018/09/icon_section_lavender.png">
-                <p>Lavender</p>
+                <p>Lavander</p>
               </div>';
     $html .= '</a>';
     $html .= '</div>';
@@ -88,7 +93,7 @@ function product_form($atts) {
 
     $html .= '<div class="box">';
     $html .= '<a href="product-category/age-ranges/baby/">';
-    $html .= '<img src="/wp-content/uploads/2018/09/thumb_baby.jpg" />';
+    $html .= '<img src="/wp-content/uploads//2018/09/thumb_baby.jpg" />';
     $html .= '<div class="overlay"><span></span></div>';
     $html .= '<div class="bg-color-txt-pic">
                 <img src="/wp-content/uploads/2018/09/icon_section_baby.png">
@@ -104,21 +109,23 @@ function product_form($atts) {
 }
 add_shortcode('product_form', 'product_form');
 
-//function redirect($url) {
-//    ob_start();
-//    header('Location: '.$url);
-//    ob_end_flush();
-//    die();
-//}
+function redirect($url) {
+    ob_start();
+    header('Location: '.$url);
+    ob_end_flush();
+    die();
+}
 
-//function if_login() {
-//    if( !is_user_logged_in() ){
-//        echo do_shortcode( '[woocommerce_my_account]');
-//    }
-//    else {
-//        return redirect('https://nsw.empassion.com.au/');
-//    }
-//}
-//add_shortcode( 'if_login', 'if_login' );
+function if_login() {
 
-remove_action('woocommerce_myaccount_coupons', 'coupons');
+    $boglink = get_bloginfo('url');
+
+    if( !is_user_logged_in() ){
+        echo do_shortcode( '[woocommerce_my_account]');
+    }
+    else {
+        return redirect('https://qld.empassion.com.au/');
+    }
+}
+add_shortcode( 'if_login', 'if_login' );
+

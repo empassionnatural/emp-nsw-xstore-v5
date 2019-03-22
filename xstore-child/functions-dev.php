@@ -3,46 +3,41 @@
 //enqueue parent theme
 add_action( 'wp_enqueue_scripts', 'theme_enqueue_styles' );
 function theme_enqueue_styles() {
-    etheme_child_styles();
+	wp_enqueue_style( 'parent-style', get_template_directory_uri() . '/style.css', array( 'bootstrap' ) );
+
+
+	if ( is_rtl() ) {
+		wp_enqueue_style( 'rtl-style', get_template_directory_uri() . '/rtl.css' );
+	}
+
+	$timestamp = strtotime( "now" );
+	wp_enqueue_style( 'child-style',
+		get_stylesheet_directory_uri() . '/style.css',
+		array( 'parent-style', 'bootstrap' ), '0.1.' . $timestamp
+	);
+
+	//wp_enqueue_script( 'custom-js', get_stylesheet_directory_uri() . '/js/custom.js', array(), '', true );
+
 }
 
 //enqueue custom scripts
 add_action( 'wp_enqueue_scripts', 'empdev_custom_scripts_frontend', 99 );
 
 function empdev_custom_scripts_frontend(){
-    wp_enqueue_script( 'custom-script', get_stylesheet_directory_uri() . '/js/custom-script.js', array('jquery'), '3.3.7', false );
-    wp_enqueue_style( 'custom-style', get_stylesheet_directory_uri() . '/css/custom-style.css', array(), '3.7.9' );
+	wp_enqueue_script( 'custom-script', get_stylesheet_directory_uri() . '/js/custom-script.js', array('jquery'), '1.0.2', false );
+	wp_enqueue_style( 'custom-style', get_stylesheet_directory_uri() . '/css/custom-style.css', array(), '1.1.3' );
 
-    if( is_front_page() ){
-        wp_enqueue_style('font-lobster-css-style', 'https://fonts.googleapis.com/css?family=Lobster+Two', array(), '2.1.1');
-        wp_enqueue_style('home-custom-style', get_stylesheet_directory_uri() . '/css/home-custom-style.css' , array(), '2.2.1');
-    }
-
-    wp_enqueue_style( 'cart-style', get_stylesheet_directory_uri() . '/css/cart-view.css', array(), '2.1.0' );
-    wp_enqueue_style( 'checkout-style', get_stylesheet_directory_uri() . '/css/checkout.css', array(), '2.1.3' );
-
-    wp_enqueue_style( 'myaccount-style', get_stylesheet_directory_uri() . '/css/my-account-view.css', array(), '2.0.2' );
-
-    wp_enqueue_style( 'register-view-style', get_stylesheet_directory_uri() . '/css/register-view.css', array(), '2.0.1' );
-
-    wp_enqueue_style( 'product-custom-style', get_stylesheet_directory_uri() . '/css/product-view.css' , array(), '2.3.1' );
-    wp_enqueue_style( 'single-product-custom-style', get_stylesheet_directory_uri() . '/css/single-product-view.css' , array(), '2.2.2' );
-
-    wp_enqueue_style( 'bootstrap-select', get_stylesheet_directory_uri() . '/plugins/bootstrap-select/css/bootstrap-select.css' );
-    wp_enqueue_script( 'bootstrap-core', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js', false, false );
-    wp_enqueue_script( 'bootstrap-select', get_stylesheet_directory_uri() . '/plugins/bootstrap-select/js/bootstrap-select.js', array( 'jquery' ), false, false );
-
-}
-
-add_action( 'wp_enqueue_scripts', 'plugin_scripts', 99 );
-function plugin_scripts() {
 
 	wp_enqueue_style( 'bootstrap-select', get_stylesheet_directory_uri() . '/plugins/bootstrap-select/css/bootstrap-select.css' );
 	wp_enqueue_script( 'bootstrap-core', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js', false, false );
 	wp_enqueue_script( 'bootstrap-select', get_stylesheet_directory_uri() . '/plugins/bootstrap-select/js/bootstrap-select.js', array( 'jquery' ), false, false );
 
-}
+	wp_enqueue_script( 'landingmap-scripts', get_stylesheet_directory_uri() . '/assets/main-global.js', array( 'jquery' ), '1.9.0', false );
+	wp_enqueue_style( 'global-styles', get_stylesheet_directory_uri() . '/assets/main-style.css', false, '1.1.2' );
+	if( is_front_page() ){
 
+	}
+}
 
 add_action( 'pmpro_after_checkout', 'sync_woo_billing_func' );
 
@@ -114,6 +109,32 @@ if( class_exists( 'WWP_Wholesale_Prices' ) ) {
 	require_once( get_stylesheet_directory() . '/woocommerce-wholesale-prices-premium/class-wwpp-wholesale-price-requirement.php' );
 }
 
+//au landing page map widgets
+add_action( 'widgets_init', 'empdev_widgets_top_sidebar_map_left' );
+function empdev_widgets_top_sidebar_map_left() {
+	register_sidebar( array(
+		'name' => __( 'Top Sidebar Map - Left', 'empassion' ),
+		'id' => 'map-top-left-corner',
+		'description' => __( 'Widgets in this area will be shown on map landing page.', 'empassion' ),
+		'before_widget' => '<div id="%1$s" class="widget %2$s">',
+		'after_widget'  => '</div>',
+		'before_title'  => '<h2 class="widgettitle">',
+		'after_title'   => '</h2>',
+	) );
+}
+add_action( 'widgets_init', 'empdev_widgets_top_sidebar_map_right' );
+function empdev_widgets_top_sidebar_map_right() {
+	register_sidebar( array(
+		'name' => __( 'Top Sidebar Map - Right', 'empassion' ),
+		'id' => 'map-top-right-corner',
+		'description' => __( 'Widgets in this area will be shown on map landing page.', 'empassion' ),
+		'before_widget' => '<div id="%1$s" class="widget %2$s">',
+		'after_widget'  => '</div>',
+		'before_title'  => '<h2 class="widgettitle">',
+		'after_title'   => '</h2>',
+	) );
+}
+
 // **********************************************************************//
 // ! Show shop navbar
 // **********************************************************************//
@@ -137,21 +158,6 @@ function etheme_shop_navbar( $location = 'header', $exclude = array(), $force = 
 
 }
 
-if ( class_exists( 'WC_Gateway_Afterpay' ) ) {
-	remove_action( 'woocommerce_single_product_summary', array(WC_Gateway_Afterpay::getInstance(), 'print_info_for_product_detail_page'), 15, 0 );
-	add_action( 'woocommerce_single_product_summary', array(WC_Gateway_Afterpay::getInstance(), 'print_info_for_product_detail_page'), 21, 0 );
-}
-
 //EMP Dev Woocommerce
 require_once( get_stylesheet_directory() . '/emp-dev-wc/emp-dev-theme-functions.php' );
-require_once( get_stylesheet_directory() . '/emp-dev-wc/class-emp-dev-wc-meta-option.php' );
-require_once( get_stylesheet_directory() . '/emp-dev-wc/class-emp-dev-wc-static-helper.php' );
-require_once( get_stylesheet_directory() . '/emp-dev-wc/emp-dev-wc-hooks.php' );
 require_once( get_stylesheet_directory() . '/emp-dev-wc/emp-dev-login.php' );
-require_once( get_stylesheet_directory() . '/emp-dev-wc/emp-meta.php' );
-/*double check*/
-if ( ! function_exists( 'rwmb_meta' ) ) {
-    function rwmb_meta( $key, $args = '', $post_id = null ) {
-        return false;
-    }
-}
